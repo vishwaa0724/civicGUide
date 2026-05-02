@@ -1,0 +1,7 @@
+/*
+ * App.css — intentionally empty.
+ *
+ * This file is retained to avoid breaking toolchain references,
+ * but all styles live in src/index.css (Tailwind base + utilities).
+ * The original Vite scaffold content has been removed as it was unused.
+ */
