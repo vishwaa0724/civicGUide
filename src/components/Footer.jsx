@@ -7,7 +7,7 @@ export const Footer = () => {
         <div className="col-span-2">
           <h3 className="text-2xl font-bold text-white mb-4 tracking-tight">CiviGuide<span className="text-google-blue">.</span></h3>
           <p className="max-w-sm mb-6">
-            Empowering citizens through civic education and seamless access to election information. 
+            Empowering citizens through civic education and seamless access to election information.
             Built with Material Design 3.
           </p>
           <div className="flex gap-4">
@@ -18,7 +18,7 @@ export const Footer = () => {
             <button className="text-sm hover:text-white transition-colors">Accessibility (A)</button>
           </div>
         </div>
-        
+
         <div>
           <h4 className="font-semibold text-white mb-4">Quick Links</h4>
           <ul className="space-y-3">
@@ -30,7 +30,7 @@ export const Footer = () => {
             <li><a href="#finder" className="hover:text-blue-400 transition-colors">Find Booth</a></li>
           </ul>
         </div>
-        
+
         <div>
           <h4 className="font-semibold text-white mb-4">Legal</h4>
           <ul className="space-y-3">
@@ -41,7 +41,7 @@ export const Footer = () => {
         </div>
       </div>
       <div className="max-w-6xl mx-auto px-6 mt-12 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between">
-        <p>© {new Date().getFullYear()} CiviGuide. Not an official government entity.</p>
+        <p>© {new Date().getFullYear()} CiviGuide. Not an official government entity<br />by Vishwaa Jagadeesan</p>
         <p className="mt-4 md:mt-0 text-sm">Powered by Google Cloud & Gemini AI</p>
       </div>
     </footer>

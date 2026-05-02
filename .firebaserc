@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "your-firebase-project-id"
-  }
+    "default": "civicguide-fa639",
+    "ai": "civicguide-fa639"
+  },
+  "targets": {},
+  "etags": {}
 }
