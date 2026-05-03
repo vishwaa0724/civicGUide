@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Send, Bot, User, Loader2, Sparkles, AlertTriangle } from 'lucide-react';
+import { Send, Bot, User, Loader2, Sparkles, AlertTriangle, Mic, MicOff, Volume2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { trackEvent } from '../firebase.js';
 
@@ -12,7 +12,10 @@ const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
 /**
  * Calls Gemini REST API directly via fetch — no SDK dependency.
- * Tries gemini-2.5-flash → gemini-2.0-flash → gemini-2.0-flash-lite in order.
+ * Tries gemini-2.5-flash → gemini-2.5-pro in order.
+ *
+ * @param {Array<{role: string, content: string}>} messages
+ * @returns {Promise<string>} Assistant reply text
  */
 const callAI = async (messages) => {
   const models = ['gemini-2.5-flash', 'gemini-2.5-pro'];
@@ -61,17 +64,76 @@ const INITIAL_MESSAGE = {
   content: "Hi! I'm **CiviGuide**, your AI assistant for all things elections. 🗳️\n\nAsk me anything — voter registration, polling booths, how EVMs work, upcoming election dates, and more!",
 };
 
+/**
+ * AI-powered election assistant backed by Gemini.
+ * Features Voice Input (SpeechRecognition) and Voice Output (SpeechSynthesis).
+ *
+ * @returns {JSX.Element}
+ */
 export const AssistantChat = () => {
   const [messages, setMessages] = useState([INITIAL_MESSAGE]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  
   const chatContainerRef = useRef(null);
+  const recognitionRef = useRef(null);
 
+  // Initialize Speech Recognition
+  useEffect(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+      
+      recognitionRef.current.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setInput((prev) => (prev + ' ' + transcript).trim());
+      };
+      
+      recognitionRef.current.onend = () => setIsListening(false);
+    }
+  }, []);
+
+  // Auto-scroll to bottom
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [messages, isLoading]);
+
+  const toggleListen = (e) => {
+    e.preventDefault();
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+    } else {
+      recognitionRef.current?.start();
+      setIsListening(true);
+    }
+  };
+
+  const speak = (text) => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel(); // Stop current speech
+      // Clean up markdown syntax for cleaner reading
+      const cleanText = text.replace(/[*_#`]/g, '');
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.rate = 1.0;
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const stopSpeaking = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+  };
 
   const handleSend = async (e) => {
     e.preventDefault();
@@ -96,6 +158,7 @@ export const AssistantChat = () => {
 
       const responseText = await callAI(history);
       setMessages((prev) => [...prev, { role: 'assistant', content: responseText }]);
+      speak(responseText); // Trigger voice output
       trackEvent('chat_message_sent', { query_length: trimmedInput.length });
     } catch (error) {
       const msg = error?.message || '';
@@ -186,20 +249,41 @@ export const AssistantChat = () => {
           </div>
 
           <div className="p-4 bg-white border-t border-slate-200">
+            {isSpeaking && (
+              <button 
+                onClick={stopSpeaking}
+                className="mb-2 text-xs text-slate-500 hover:text-red-500 flex items-center gap-1 transition-colors"
+              >
+                <Volume2 size={12} /> Stop speaking
+              </button>
+            )}
             <form onSubmit={handleSend} className="relative flex items-center" role="search" aria-label="Ask a question">
               <label htmlFor="chat-input" className="sr-only">Ask about voter registration, polling booths, election dates</label>
               <input
                 id="chat-input" type="text" value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask about voter registration, polling booths, election dates..."
-                className="w-full pl-5 pr-14 py-3.5 bg-slate-100 rounded-full text-sm outline-none focus:bg-white focus:ring-2 focus:ring-blue-200 transition-all"
+                placeholder={isListening ? "Listening..." : "Ask about voter registration, polling booths, election dates..."}
+                className={`w-full pl-5 pr-24 py-3.5 bg-slate-100 rounded-full text-sm outline-none focus:bg-white focus:ring-2 focus:ring-blue-200 transition-all ${isListening ? 'bg-blue-50 border border-blue-200' : ''}`}
                 disabled={isLoading} aria-disabled={isLoading} data-testid="chat-input"
               />
-              <button type="submit" disabled={!input.trim() || isLoading} aria-label="Send message"
-                className="absolute right-2 p-2.5 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-md focus-visible:ring-2 focus-visible:ring-blue-500"
-                data-testid="chat-send-btn">
-                <Send size={16} aria-hidden="true" />
-              </button>
+              <div className="absolute right-2 flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={toggleListen}
+                  aria-label={isListening ? "Stop listening" : "Start voice input"}
+                  className={`p-2.5 rounded-full transition-colors ${
+                    isListening ? 'bg-red-100 text-red-600 animate-pulse' : 'text-slate-400 hover:bg-slate-200 hover:text-slate-700'
+                  }`}
+                  title="Voice Input"
+                >
+                  {isListening ? <Mic size={16} /> : <MicOff size={16} />}
+                </button>
+                <button type="submit" disabled={!input.trim() || isLoading} aria-label="Send message"
+                  className="p-2.5 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-md focus-visible:ring-2 focus-visible:ring-blue-500"
+                  data-testid="chat-send-btn">
+                  <Send size={16} aria-hidden="true" />
+                </button>
+              </div>
             </form>
           </div>
         </div>

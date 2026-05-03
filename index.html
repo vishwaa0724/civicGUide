@@ -1,31 +1,28 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- SEO -->
-    <title>CiviGuide — India Election Education Platform 2026</title>
-    <meta
-      name="description"
-      content="CiviGuide helps Indian citizens navigate the 2026 State Assembly Elections — interactive constituency maps, AI-powered civic assistant, candidate profiles, and step-by-step voter guidance."
-    />
-    <meta name="theme-color" content="#1A73E8" />
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Open Graph -->
-    <meta property="og:title" content="CiviGuide — India Election Education Platform 2026" />
-    <meta property="og:description" content="Your AI-powered guide to India's 2026 Assembly Elections." />
-    <meta property="og:type" content="website" />
+  <!-- SEO -->
+  <title>CiviGuide — India Election Education Platform 2026</title>
+  <meta name="description"
+    content="CiviGuide helps Indian citizens navigate the 2026 State Assembly Elections — interactive constituency maps, AI-powered civic assistant, candidate profiles, and step-by-step voter guidance." />
+  <meta name="theme-color" content="#1A73E8" />
 
-    <!--
+  <!-- Open Graph -->
+  <meta property="og:title" content="CiviGuide — India Election Education Platform 2026" />
+  <meta property="og:description" content="Your AI-powered guide to India's 2026 Assembly Elections." />
+  <meta property="og:type" content="website" />
+
+  <!--
       Content Security Policy
       Restricts resource loading to known, trusted origins.
       Adjust 'connect-src' if additional APIs are integrated.
     -->
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="
+  <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
         script-src 'self' 'unsafe-inline' https://maps.googleapis.com https://maps.gstatic.com;
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com;
@@ -44,13 +41,15 @@
                     https://*.firebaseio.com
                     https://firestore.googleapis.com
                     https://www.googleapis.com;
-        frame-src 'none';
+        frame-src 'self' https://*.firebaseapp.com;
         object-src 'none';
-      "
-    />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+        worker-src 'self' blob:;
+      " />
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
 </html>

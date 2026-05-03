@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { CheckCircle2, Circle } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useLocalStorage } from '../hooks/useLocalStorage.js';
+import confetti from 'canvas-confetti';
 import { trackEvent } from '../firebase.js';
+import { useAuth } from '../context/AuthContext';
+import { getUserData, saveUserData } from '../utils/firebaseUtils';
 
 const journeySteps = [
   { id: 1, title: 'Register to Vote', detail: 'Check eligibility and submit Form 6 on the NVSP portal.' },
@@ -13,19 +15,57 @@ const journeySteps = [
 
 /**
  * Interactive voter readiness checklist.
- * — Persists completed steps to localStorage across page reloads.
- * — Step items rendered as <button role="checkbox"> for full keyboard accessibility.
- * — Fires analytics events on each toggle.
+ * — Syncs completed steps to Firestore if logged in, otherwise uses local state.
+ * — Triggers confetti gamification when 100% is reached.
+ * — Full keyboard accessibility.
+ *
+ * @returns {JSX.Element}
  */
 export const VoterJourney = () => {
-  // Persist completed step IDs across reloads
-  const [completed, setCompleted] = useLocalStorage('voter-journey-completed', [1]);
+  const { user } = useAuth();
+  const [completed, setCompleted] = useState([1]);
+  const [loading, setLoading] = useState(true);
 
-  const toggle = (id) => {
+  // Load user data from Firestore on mount or login
+  useEffect(() => {
+    const fetchProgress = async () => {
+      if (user) {
+        const data = await getUserData(user.uid, 'journey');
+        if (data && data.completed) {
+          setCompleted(data.completed);
+        }
+      }
+      setLoading(false);
+    };
+    fetchProgress();
+  }, [user]);
+
+  const triggerConfetti = () => {
+    confetti({
+      particleCount: 150,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#4285F4', '#34A853', '#FBBC05', '#EA4335'],
+    });
+  };
+
+  const toggle = async (id) => {
     const next = completed.includes(id)
       ? completed.filter((s) => s !== id)
       : [...completed, id];
+      
     setCompleted(next);
+    
+    // Trigger confetti if newly completed all
+    if (next.length === journeySteps.length && !completed.includes(id)) {
+      triggerConfetti();
+    }
+
+    // Save to Firestore if logged in
+    if (user) {
+      await saveUserData(user.uid, 'journey', { completed: next });
+    }
+
     trackEvent('journey_step_toggled', {
       step_id: id,
       completed: !completed.includes(id),
@@ -33,6 +73,8 @@ export const VoterJourney = () => {
   };
 
   const progress = (completed.length / journeySteps.length) * 100;
+
+  if (loading && user) return <div className="py-24 text-center">Loading your journey...</div>;
 
   return (
     <section className="py-24 bg-white" id="journey" aria-labelledby="journey-heading">
@@ -42,14 +84,26 @@ export const VoterJourney = () => {
             <h2 id="journey-heading" className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
               Your Voter Journey
             </h2>
-            <p className="mt-3 text-slate-600">Track your readiness for the upcoming election.</p>
+            <p className="mt-3 text-slate-600">
+              Track your readiness for the upcoming election. 
+              {!user && ' Sign in to save your progress!'}
+            </p>
           </div>
 
           {/* Progress bar */}
           <div className="mb-10" role="progressbar" aria-valuenow={Math.round(progress)} aria-valuemin={0} aria-valuemax={100} aria-label="Voter journey progress">
-            <div className="flex justify-between text-sm font-medium text-slate-500 mb-3">
+            <div className="flex justify-between items-center text-sm font-medium text-slate-500 mb-3">
               <span>Progress</span>
-              <span className="text-blue-600">{Math.round(progress)}%</span>
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={triggerConfetti} 
+                  className="px-2 py-0.5 bg-blue-100 text-blue-600 rounded text-xs hover:bg-blue-200 transition-colors"
+                  aria-label="Test Gamification effect"
+                >
+                  Test Gamification 🎉
+                </button>
+                <span className="text-blue-600 font-bold">{Math.round(progress)}%</span>
+              </div>
             </div>
             <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
               <motion.div
@@ -96,3 +150,4 @@ export const VoterJourney = () => {
     </section>
   );
 };
+

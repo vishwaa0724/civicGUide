@@ -1,5 +1,7 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getAnalytics, logEvent, isSupported } from 'firebase/analytics';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 
 /**
  * Firebase configuration loaded from environment variables.
@@ -23,8 +25,9 @@ const hasConfig =
 let analyticsInstance = null;
 
 // Initialise Firebase Analytics asynchronously; safely skipped if unavailable.
+let app = null;
 if (hasConfig) {
-  const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+  app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
   isSupported()
     .then((supported) => {
       if (supported) analyticsInstance = getAnalytics(app);
@@ -33,6 +36,9 @@ if (hasConfig) {
       // Analytics unsupported in this environment (e.g. ad-blocker, Node.js)
     });
 }
+
+export const auth = app ? getAuth(app) : null;
+export const db = app ? getFirestore(app) : null;
 
 /**
  * Fire-and-forget analytics event logger.

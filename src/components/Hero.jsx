@@ -1,81 +1,43 @@
-import React, { useRef } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, RoundedBox, Text, Float } from '@react-three/drei';
+import React from 'react';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
 import { motion } from 'framer-motion';
+import { BallotBox } from './3d/BallotBox';
 
-// ─── 3D Ballot Box ───────────────────────────────────────────────────────────
-const BallotBox = () => {
-  const boxRef = useRef();
-  const slotRef = useRef();
-
-  useFrame((state) => {
-    if (boxRef.current) {
-      boxRef.current.rotation.y = state.clock.getElapsedTime() * 0.4;
-      boxRef.current.position.y = Math.sin(state.clock.getElapsedTime() * 0.8) * 0.08;
-    }
-  });
-
-  return (
-    <group ref={boxRef} position={[0, 0, 0]}>
-      {/* Main ballot box body */}
-      <RoundedBox args={[1.8, 2, 1.4]} radius={0.08} smoothness={4} position={[0, -0.2, 0]}>
-        <meshStandardMaterial color="#1A73E8" metalness={0.3} roughness={0.4} />
-      </RoundedBox>
-
-      {/* Box lid */}
-      <RoundedBox args={[1.9, 0.25, 1.5]} radius={0.05} smoothness={4} position={[0, 0.8, 0]}>
-        <meshStandardMaterial color="#1557B0" metalness={0.4} roughness={0.3} />
-      </RoundedBox>
-
-      {/* Vote slot on top */}
-      <mesh position={[0, 0.94, 0]}>
-        <boxGeometry args={[0.8, 0.06, 0.12]} />
-        <meshStandardMaterial color="#0d1b2a" />
-      </mesh>
-
-      {/* ECI emblem circle */}
-      <mesh position={[0, 0.1, 0.72]}>
-        <cylinderGeometry args={[0.28, 0.28, 0.06, 32]} rotation={[Math.PI / 2, 0, 0]} />
-        <meshStandardMaterial color="#FBBC05" metalness={0.6} roughness={0.2} />
-      </mesh>
-
-      {/* Floating ballot papers */}
-      <Float speed={2} rotationIntensity={0.4} floatIntensity={0.5}>
-        <mesh position={[1.4, 0.6, 0]} rotation={[0, 0, 0.3]}>
-          <planeGeometry args={[0.55, 0.7]} />
-          <meshStandardMaterial color="white" />
-        </mesh>
-      </Float>
-      <Float speed={1.5} rotationIntensity={0.3} floatIntensity={0.4}>
-        <mesh position={[-1.4, 0.2, 0.2]} rotation={[0, 0.2, -0.2]}>
-          <planeGeometry args={[0.55, 0.7]} />
-          <meshStandardMaterial color="#e8f0fe" />
-        </mesh>
-      </Float>
-      <Float speed={1.8} rotationIntensity={0.5} floatIntensity={0.6}>
-        <mesh position={[1.2, -0.6, 0.4]} rotation={[0.1, 0, 0.15]}>
-          <planeGeometry args={[0.55, 0.7]} />
-          <meshStandardMaterial color="#fff8e1" />
-        </mesh>
-      </Float>
-    </group>
-  );
-};
-
+/**
+ * Hero Component
+ * Displays the main landing section with a 3D Ballot Box and live updates ticker.
+ *
+ * @returns {JSX.Element}
+ */
 export const Hero = () => {
   return (
-    <section className="relative w-full h-screen flex items-center overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/30">
+    <section className="relative w-full h-screen flex flex-col justify-center overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/30">
       {/* Background decorative elements */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-20 right-10 w-96 h-96 bg-blue-100/40 rounded-full blur-3xl" />
         <div className="absolute bottom-20 left-10 w-80 h-80 bg-indigo-100/30 rounded-full blur-3xl" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 w-full grid md:grid-cols-2 gap-8 items-center">
+      {/* Live Ticker Marquee */}
+      <div className="absolute top-16 left-0 right-0 bg-blue-600/90 text-white py-1.5 overflow-hidden backdrop-blur-sm z-20 shadow-sm border-y border-blue-500/50">
+        <div className="flex animate-marquee whitespace-nowrap w-max">
+          {[...Array(6)].map((_, i) => (
+            <span key={i} className="mx-8 text-xs font-semibold tracking-wider flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" /> LIVE: ECI announces 2026 Assembly Election dates
+              <span className="mx-4 text-blue-300">•</span> Phase 1 begins April 23
+              <span className="mx-4 text-blue-300">•</span> 970 Million Eligible Voters
+              <span className="mx-4 text-blue-300">•</span> Don't forget your Voter ID
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-6 w-full grid md:grid-cols-2 gap-8 items-center pt-16">
         {/* Left — Text */}
         <div className="flex flex-col items-start">
           <motion.div
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold mb-6"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold mb-6 shadow-sm border border-blue-200/50 backdrop-blur-md"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -91,7 +53,7 @@ export const Hero = () => {
             transition={{ duration: 0.8, delay: 0.1 }}
           >
             Your Voice.<br />
-            <span className="text-blue-600">Your Vote.</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Your Vote.</span>
           </motion.h1>
 
           <motion.p
@@ -109,10 +71,10 @@ export const Hero = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            <a href="#how-it-works" className="px-8 py-4 bg-blue-600 text-white rounded-full font-semibold shadow-lg hover:bg-blue-700 hover:-translate-y-0.5 transition-all">
+            <a href="#how-it-works" className="px-8 py-4 bg-blue-600 text-white rounded-full font-semibold shadow-lg shadow-blue-500/30 hover:bg-blue-700 hover:-translate-y-0.5 transition-all">
               How It Works
             </a>
-            <a href="#assistant" className="px-8 py-4 bg-white text-blue-600 border-2 border-blue-200 rounded-full font-semibold hover:bg-blue-50 hover:-translate-y-0.5 transition-all">
+            <a href="#assistant" className="px-8 py-4 bg-white/80 backdrop-blur-md text-blue-600 border border-blue-200 rounded-full font-semibold shadow-sm hover:bg-blue-50 hover:-translate-y-0.5 transition-all">
               Ask AI Assistant
             </a>
           </motion.div>
@@ -131,7 +93,7 @@ export const Hero = () => {
             ].map((stat) => (
               <div key={stat.label}>
                 <div className="text-2xl font-black text-blue-600">{stat.num}</div>
-                <div className="text-sm text-slate-500 mt-0.5">{stat.label}</div>
+                <div className="text-sm text-slate-500 mt-0.5 font-medium">{stat.label}</div>
               </div>
             ))}
           </motion.div>
@@ -139,13 +101,18 @@ export const Hero = () => {
 
         {/* Right — 3D Ballot Box (decorative, hidden from screen readers) */}
         <motion.div
-          className="h-[420px] md:h-[520px] w-full"
+          className="h-[420px] md:h-[520px] w-full relative"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 0.3 }}
           aria-hidden="true"
           role="presentation"
         >
+          {/* Glass orb behind 3D object */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="w-72 h-72 bg-blue-400/20 rounded-full blur-[60px]" />
+          </div>
+          
           <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
             <ambientLight intensity={0.7} />
             <directionalLight position={[5, 5, 5]} intensity={1.2} castShadow />
@@ -155,7 +122,8 @@ export const Hero = () => {
             <OrbitControls
               enableZoom={false}
               enablePan={false}
-              autoRotate={false}
+              autoRotate={true}
+              autoRotateSpeed={0.5}
               minPolarAngle={Math.PI / 3}
               maxPolarAngle={Math.PI / 1.8}
             />
@@ -170,8 +138,8 @@ export const Hero = () => {
         animate={{ opacity: 1 }}
         transition={{ delay: 1.2 }}
       >
-        <span className="text-xs font-medium tracking-widest uppercase">Scroll</span>
-        <div className="w-5 h-9 border-2 border-slate-300 rounded-full flex items-start justify-center pt-1.5">
+        <span className="text-xs font-semibold tracking-widest uppercase text-slate-500">Scroll</span>
+        <div className="w-5 h-9 border-2 border-slate-300 rounded-full flex items-start justify-center pt-1.5 shadow-sm">
           <motion.div
             className="w-1.5 h-1.5 bg-slate-400 rounded-full"
             animate={{ y: [0, 12, 0] }}

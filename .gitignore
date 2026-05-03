@@ -17,6 +17,8 @@ dist-ssr
 firebase.json
 .gitignore
 .firebaserc
+firestore.rules
+firestore.indexes.json
 
 # Editor directories and files
 .vscode/*
