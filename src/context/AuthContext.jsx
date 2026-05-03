@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react';
 import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase';
 import PropTypes from 'prop-types';
@@ -16,13 +16,10 @@ export const useAuth = () => useContext(AuthContext);
  */
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!!auth);
 
   useEffect(() => {
-    if (!auth) {
-      setLoading(false);
-      return;
-    }
+    if (!auth) return;
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
@@ -30,7 +27,7 @@ export const AuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  const loginWithGoogle = async () => {
+  const loginWithGoogle = useCallback(async () => {
     if (!auth) {
       alert('Firebase Auth is not configured! Please add your Firebase configuration (VITE_FIREBASE_API_KEY, etc.) to the .env file to enable Google Sign-in.');
       return;
@@ -41,19 +38,26 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Login Failed', error);
     }
-  };
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     if (!auth) return;
     try {
       await signOut(auth);
     } catch (error) {
       console.error('Logout Failed', error);
     }
-  };
+  }, []);
+
+  const value = useMemo(() => ({
+    user,
+    loading,
+    loginWithGoogle,
+    logout
+  }), [user, loading, loginWithGoogle, logout]);
 
   return (
-    <AuthContext.Provider value={{ user, loginWithGoogle, logout, loading }}>
+    <AuthContext.Provider value={value}>
       {!loading && children}
     </AuthContext.Provider>
   );
