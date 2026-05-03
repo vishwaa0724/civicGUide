@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { UserPlus, Mic2, Vote, BarChart3, Trophy } from 'lucide-react';
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Hero } from './components/Hero';
 import { HowElectionsWork } from './components/HowElectionsWork';
 import { ElectionCalendar } from './components/ElectionCalendar';

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { describe, it, expect } from 'vitest';
 import { overpassToGeoJSON, buildOverpassQuery, geoJsonToGMPaths } from '../../utils/geo.js';
 

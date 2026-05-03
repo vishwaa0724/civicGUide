@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { Send, Bot, User, Loader2, Sparkles, AlertTriangle, Mic, MicOff, Volume2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { trackEvent } from '../firebase.js';

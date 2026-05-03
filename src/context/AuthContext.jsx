@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react';
+import { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react';
 import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase';
 import PropTypes from 'prop-types';
@@ -9,6 +9,7 @@ const AuthContext = createContext();
  * Custom hook to use AuthContext
  * @returns {Object} { user, loginWithGoogle, logout, loading }
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext);
 
 /**

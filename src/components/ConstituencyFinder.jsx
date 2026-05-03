@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { GoogleMap, useJsApiLoader, Polygon, InfoWindow, Marker } from '@react-google-maps/api';
 import { MapPin, Search, Navigation, Info, X, Loader2, RefreshCw } from 'lucide-react';
 import { KEY_SEATS, STATE_VIEWS } from '../data/elections.js';
-import { buildOverpassQuery, overpassToGeoJSON, geoJsonToGMPaths, fetchConstituencies } from '../utils/geo.js';
+import { geoJsonToGMPaths, fetchConstituencies } from '../utils/geo.js';
 import { trackEvent } from '../firebase.js';
 
 /** In-memory cache — prevents re-fetching Overpass data on state switch */
@@ -109,6 +109,7 @@ export const ConstituencyFinder = () => {
       });
   }, []);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { loadData(selectedState); }, [selectedState, loadData]);
 
   // Pan map to new state when selection changes

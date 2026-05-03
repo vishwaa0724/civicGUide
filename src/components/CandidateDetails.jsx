@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Users, MapPin, Award, ExternalLink } from 'lucide-react';
 import { CANDIDATES_BY_STATE } from '../data/elections.js';

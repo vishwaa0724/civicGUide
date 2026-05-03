@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { CalendarDays, Clock, CheckCircle2, AlertCircle, Hourglass } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ELECTION_DATA, OTHER_STATES } from '../data/elections.js';
