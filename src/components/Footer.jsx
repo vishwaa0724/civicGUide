@@ -41,7 +41,7 @@ export const Footer = () => {
         </div>
       </div>
       <div className="max-w-6xl mx-auto px-6 mt-12 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between">
-        <p>© {new Date().getFullYear()} CiviGuide. Not an official government entity<br />by Vishwaa Jagadeesan</p>
+        <p>© {new Date().getFullYear()} CiviGuide. Not an official government entity.<br />Created and maintained by Vishwaa Jagadeesan</p>
         <p className="mt-4 md:mt-0 text-sm">Powered by Google Cloud & Gemini AI</p>
       </div>
     </footer>
